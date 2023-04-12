@@ -1,0 +1,88 @@
+---
+- name: Check current tendermint_exporter version.
+  command: "{{ tendermint_exporter_bin_path }} --version"
+  failed_when: false
+  changed_when: false
+  register: tendermint_exporter_version_check
+  tags:
+    - version
+    - download
+
+- name: Configure latest version
+  include_tasks: config-version.yaml
+  when: >
+    tendermint_exporter_version is match("latest")
+    or tendermint_exporter_version is not defined
+  tags:
+    - version
+    - download
+
+- name: Download and unarchive tendermint_exporter into temporary location.
+  unarchive:
+    src: "{{ tendermint_exporter_download_url }}"
+    dest: /tmp
+    remote_src: true
+    mode: 0755
+  when: >
+    tendermint_exporter_version_check.stdout is not defined
+    or tendermint_exporter_version not in tendermint_exporter_version_check.stdout
+  register: tendermint_exporter_download_check
+  tags:
+    - download
+
+- name: Move tendermint_exporter binary into place.
+  copy:
+    src: "/tmp/tendermint-exporter"
+    dest: "{{ tendermint_exporter_bin_path }}"
+    mode: 0755
+    remote_src: true
+  notify: restart tendermint_exporter
+  when: >
+    tendermint_exporter_download_check is changed
+    or tendermint_exporter_version_check.stdout | length == 0
+  tags:
+    - install
+
+- name: Create tendermint_exporter user.
+  user:
+    name: "{{ tendermint_exporter_user }}"
+    shell: /sbin/nologin
+    state: present
+  tags:
+    - configure
+
+- name: Copy the tendermint_exporter systemd unit file.
+  template:
+    src: tendermint_exporter.service.j2
+    dest: /etc/systemd/system/tendermint_exporter.service
+    mode: 0644
+  register: tendermint_exporter_service
+  notify: restart tendermint_exporter
+  tags:
+    - configure
+
+- name: Reload systemd daemon if unit file is changed.
+  systemd:
+    daemon-reload: true
+  notify: restart tendermint_exporter
+  when: tendermint_exporter_service is changed
+  tags:
+    - configure
+
+- name: Ensure tendermint_exporter is running and enabled at boot.
+  service:
+    name: tendermint_exporter
+    state: "{{ tendermint_exporter_state }}"
+    enabled: "{{ tendermint_exporter_enabled }}"
+  tags:
+    - configure
+
+- name: Verify tendermint_exporter is responding to requests.
+  uri:
+    url: "http://{% if tendermint_exporter_host !='' %}{{ tendermint_exporter_host }}{% else %}localhost{% endif %}:{{ tendermint_exporter_port }}/"
+    return_content: true
+  register: metrics_output
+  failed_when: "metrics_output.status != 200"
+  tags:
+    - configure
+    - healthcheck

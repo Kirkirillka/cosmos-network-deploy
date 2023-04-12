@@ -1,0 +1,22 @@
+---
+# Use the latest tendermint_exporter release
+tendermint_exporter_version: 'latest'
+
+# Alternatively, set a specific version
+# See available releases: https://github.com/Kirkirillka/tendermint-exporter/releases/
+# tendermint_exporter_version: '0.18.1'
+
+tendermint_exporter_user: tendermint-exporter
+
+tendermint_exporter_arch: 'amd64'
+tendermint_exporter_download_url: https://github.com/Kirkirillka/tendermint-exporter/releases/download/v{{ tendermint_exporter_version }}/tendermint-exporter_{{ tendermint_exporter_version }}_linux_{{ tendermint_exporter_arch }}.tar.gz
+
+tendermint_exporter_bin_path: /usr/local/bin/tendermint-exporter
+
+# Set tendermint_exporter_host to localhost if you wish to expose tendermint_exporter on localhost only.
+tendermint_exporter_host: ''
+tendermint_exporter_port: 9301
+tendermint_exporter_options: ''
+
+tendermint_exporter_state: started
+tendermint_exporter_enabled: true

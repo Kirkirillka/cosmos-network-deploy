@@ -1,0 +1,11 @@
+[Unit]
+Description=Tendermint Exporter
+
+[Service]
+TimeoutStartSec=0
+User={{tendermint_exporter_user}}
+Restart=on-failure
+ExecStart={{ tendermint_exporter_bin_path }} --listen-address={{ tendermint_exporter_host }}:{{ tendermint_exporter_port }} {{ tendermint_exporter_options }}
+
+[Install]
+WantedBy=multi-user.target

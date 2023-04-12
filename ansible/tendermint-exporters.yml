@@ -1,0 +1,3 @@
+- hosts: tendermint_exporters
+  roles:
+    - role: tendermint-exporter

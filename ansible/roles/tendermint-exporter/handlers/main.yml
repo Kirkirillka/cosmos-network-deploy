@@ -1,0 +1,5 @@
+---
+- name: restart tendermint_exporter
+  service:
+    name: tendermint_exporter
+    state: restarted

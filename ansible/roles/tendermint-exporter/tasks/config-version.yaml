@@ -1,0 +1,28 @@
+---
+- name: Determine latest GitHub release (local)
+  delegate_to: localhost
+  become: false
+  uri:
+    url: "https://api.github.com/repos/Kirkirillka/tendermint-exporter/releases/latest"
+    body_format: json
+  register: _github_release
+  until: _github_release.status == 200
+  retries: 5
+  tags:
+    - version
+    - download
+
+- name: Set tendermint_exporter_version
+  set_fact:
+    tendermint_exporter_version: "{{ _github_release.json.tag_name
+      | regex_replace('^v?([0-9\\.]+)$', '\\1') }}"
+  tags:
+    - version
+    - download
+
+- name: Set tendermint_exporter_download_url
+  set_fact:
+    tendermint_exporter_download_url: "https://github.com/Kirkirillka/tendermint-exporter/releases/download/v{{ tendermint_exporter_version }}/tendermint-exporter_{{ tendermint_exporter_version }}_linux_{{ tendermint_exporter_arch }}.tar.gz"
+  tags:
+    - version
+    - download
