@@ -1,7 +1,7 @@
 [Unit]
 Description=Tendermint Exporter
 After={{cosmos_node_systemd_service}} network.target
-StartLimitIntervalSec=30
+StartLimitIntervalSec=60
 StartLimitBurst=3
 OnFailure=tendermint_exporter_healer.service
 
