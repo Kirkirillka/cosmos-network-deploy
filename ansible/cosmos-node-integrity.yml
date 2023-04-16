@@ -1,0 +1,10 @@
+- hosts: cosmos
+  collections:
+    - devsec.hardening
+  vars:
+    ssh_banner: true
+    ssh_print_last_log: true
+    ssh_client_alive_count: 2
+    ssh_max_sessions: 2
+  roles:
+    - role: devsec.hardening.os_hardening

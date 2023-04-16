@@ -1,0 +1,5 @@
+#!/bin/bash
+
+echo 'Attempting to recover!' > /tmp/tendermint_exporter_recovery_info
+systemctl reset-failed tendermint_exporter
+systemctl restart tendermint_exporter

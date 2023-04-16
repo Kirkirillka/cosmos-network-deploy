@@ -1,0 +1,25 @@
+- hosts: cosmos
+  collections:
+    - cosmos.cosmos_ansible
+  roles:
+    - role: cosmos.cosmos_ansible.node
+
+  pre_tasks:
+    # https://github.com/georchestra/ansible/issues/55
+    - name: install acl
+      apt:
+        name: acl
+        state: present
+
+    - name: ensure pip is present
+      apt:
+        name: python3-pip
+        state: present
+
+    - name: "fix: Set up pip dependencies with user-wide access"
+      pip:
+        name:
+          - toml
+          - github3.py
+        state: present
+        umask: "0022"

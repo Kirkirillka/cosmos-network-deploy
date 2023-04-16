@@ -1,0 +1,5 @@
+- name: install packages
+  apt:
+    name:
+      - aide
+    state: present

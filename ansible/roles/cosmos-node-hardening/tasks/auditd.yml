@@ -1,0 +1,3 @@
+- name: configure auditd
+  import_role:
+    name: juju4.auditd

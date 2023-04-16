@@ -1,0 +1,38 @@
+- name: install crypto random generator package
+  apt:
+    name: rng-tools
+    state: present
+
+- name: install integrity software
+  apt:
+    name:
+      - apt-show-versions
+      - debsums
+    state: present
+
+- name: install system performance tool
+  apt:
+    name: sysstat
+    state: present
+
+- name: install systemd-timesyncd
+  apt:
+    name: systemd-timesyncd
+    state: present
+  tags:
+    - ntp
+
+- name: install iptables-persistent
+  apt:
+    name: iptables-persistent
+    state: present
+  tags:
+    - firewall
+
+- name: remove dangerous packages
+  apt:
+    name: 
+      # idk why they were installed
+      - bind9
+      - rpcbind
+    state: absent

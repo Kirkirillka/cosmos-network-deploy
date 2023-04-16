@@ -1,11 +1,16 @@
 [Unit]
 Description=Tendermint Exporter
+After={{cosmos_node_systemd_service}} network.target
+StartLimitIntervalSec=30
+StartLimitBurst=3
+OnFailure=tendermint_exporter_healer.service
 
 [Service]
-TimeoutStartSec=0
 User={{tendermint_exporter_user}}
-Restart=on-failure
+Restart=always
+RestartSec=10s
 ExecStart={{ tendermint_exporter_bin_path }} --listen-address={{ tendermint_exporter_host }}:{{ tendermint_exporter_port }} {{ tendermint_exporter_options }}
 
 [Install]
 WantedBy=multi-user.target
+

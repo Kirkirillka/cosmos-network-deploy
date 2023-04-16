@@ -1,0 +1,7 @@
+- hosts: tendermint_exporters
+  roles:
+    - role: tendermint-exporter
+
+  tasks:
+    - import_role:
+        name: tendermint-exporter

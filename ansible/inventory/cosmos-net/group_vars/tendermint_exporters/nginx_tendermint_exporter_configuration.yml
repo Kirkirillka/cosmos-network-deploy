@@ -1,0 +1,35 @@
+nginx_tendermint_exporter_config_http_template:
+  - backup: true
+    deployment_location: /etc/nginx/conf.d/tendermint_exporter.conf
+    config:
+      upstreams:
+        - name: tendermint_exporter
+          zone:
+            name: stream_zone
+            size: 64k
+          least_conn: true
+          servers:
+            - address: "localhost:{{tendermint_exporter_port}}"
+              weight: 1
+              max_conns: 100
+              max_fails: 3
+              fail_timeout: 5s
+              backup: false
+              down: false
+              resolve: false
+      log:
+        error_log:
+          file: /var/log/nginx/tendermint_exporter_error.log
+          level: notice
+      servers:
+        - core:
+            listen:
+              - address: 0.0.0.0
+                port: 19301
+          locations:
+            - location: /
+              auth_basic:
+                realm: "\"Tendermint exporter area\""
+                user_file: "{{ nginx_tendermint_htpasswd_path }}"
+              proxy:
+                pass: http://tendermint_exporter/

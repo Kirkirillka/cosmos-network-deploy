@@ -1,0 +1,7 @@
+- name: enable DNSSEC
+  lineinfile:
+    path: /etc/systemd/resolved.conf
+    insertafter: "[Resolve]"
+    regexp: "DNSSEC="
+    line: "DNSSEC=allow-downgrade"
+  notify: reload systemd-resolved

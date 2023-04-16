@@ -1,0 +1,13 @@
+internet_facing_interface: eth0
+firewall_lockdown: false
+
+apt_cache_updated: true
+apt_system_upgraded: false
+apt_system_purged: true
+
+
+firewall_configured: true
+banners_configured: true
+malware_scanner_configured: true
+auditd_configured: true
+dns_configured: true

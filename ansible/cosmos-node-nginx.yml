@@ -1,0 +1,51 @@
+- hosts: nginx
+  vars:
+    nginx_directory_path: "/etc/nginx"
+    nginx_tendermint_htpasswd_path: "{{nginx_directory_path}}/tendermint_exporter.htpasswd"
+    nginx_gaiad_metrics_htpasswd_path:  "{{nginx_directory_path}}/gaiad.htpasswd"
+  roles:
+    - name: nginxinc.nginx
+    - name: nginxinc.nginx_config
+      tags:
+        - nginx
+        - nginx_config
+
+  pre_tasks:
+    - name: ensure nginx directory exists
+      ansible.builtin.file:
+        path: "{{ nginx_directory_path }}"
+        state: directory
+    - name: install passlib for hasspwd generation
+      pip:
+        name: passlib
+        state: present
+
+    - name: configure htpasswd for gaiad metrics
+      block:
+        - name: remove default gaiad user
+          community.general.htpasswd:
+            path: "{{nginx_gaiad_metrics_htpasswd_path}}"
+            name: gaiad
+            state: absent
+        - name: create specific user for gaiaid metrics
+          community.general.htpasswd:
+            path: "{{nginx_gaiad_metrics_htpasswd_path}}"
+            name: "{{nginx_gaiad_metrics_auth_basic_user | default('gaiad') }}"
+            password: "{{nginx_gaiad_metrics_auth_basic_password | default('gaiad')}}"
+            owner: nginx
+            group: nginx
+            mode: 0440
+      tags:
+        - nginx_config
+
+    - name: configure htpasswd for tendermint_exporter
+      block:
+        - community.general.htpasswd:
+            path: "{{nginx_tendermint_htpasswd_path}}"
+            name: "{{nginx_tendermint_exporter_auth_basic_user}}"
+            password: "{{nginx_tendermint_exporter_auth_basic_password}}"
+            owner: nginx
+            group: nginx
+            mode: 0440
+      tags:
+        - nginx_config

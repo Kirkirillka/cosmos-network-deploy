@@ -1,0 +1,175 @@
+# https://ethereum.stackexchange.com/questions/8710/good-iptables-rulesets-for-ipv4-and-ipv6-in-geth-ethereum-node
+
+- name: restore iptables rule from file
+  community.general.iptables_state:
+    state: restored
+    path: /etc/iptables/rules.v4
+  async: "{{ ansible_timeout }}"
+  poll: 0
+
+###
+# Local traffic management
+###
+
+- name: Allow local traffic
+  ansible.builtin.iptables:
+    chain: INPUT
+    in_interface: lo
+    jump: ACCEPT
+    comment: ACCEPT local traffic
+
+- name: Reject locally destinated traffic not from localhost
+  ansible.builtin.iptables:
+    chain: INPUT
+    source: 127.0.0.0/8
+    in_interface: "!lo"
+    jump: REJECT
+    comment: REJECT locally from external
+
+###
+## established connections
+###
+
+- name: Allow already established connections
+  ansible.builtin.iptables:
+    chain: INPUT
+    match: state
+    ctstate: ESTABLISHED,RELATED
+    jump: ACCEPT
+    comment: ACCEPT established/related
+
+###
+# Allow specific system protocols
+###
+
+- name: Allow ICMP PING 
+  ansible.builtin.iptables:
+    chain: INPUT
+    protocol: icmp
+    ctstate: NEW
+    icmp_type: 8
+    match: state
+    jump: ACCEPT
+    comment: ACCEPT ICMP PING
+
+- name: Allow incoming SSH connections 
+  ansible.builtin.iptables:
+    chain: INPUT
+    protocol: tcp
+    destination_ports:
+      - "22"
+    jump: ACCEPT
+    comment: ACCEPT SSH
+
+- name: Disable NFS connections 
+  ansible.builtin.iptables:
+    chain: INPUT
+    protocol: tcp
+    in_interface: "{{internet_facing_interface}}"
+    destination_ports:
+      - "111"
+    jump: DROP
+    comment: DROP NFS
+
+- name: Reject incoming DNS requests not outside 
+  block:
+    - name: block default 53 udp
+      ansible.builtin.iptables:
+        chain: INPUT
+        protocol: udp
+        in_interface: "!lo"
+        destination_ports:
+          - "53"
+        jump: DROP
+        comment: DROP 53 DNS UDP from outside
+    - name: block default 53 tcp
+      ansible.builtin.iptables:
+        chain: INPUT
+        protocol: tcp
+        in_interface: "!lo"
+        destination_ports:
+          - "53"
+        jump: DROP
+        comment: DROP DNS TCP from outside
+    - name: block default 953 rdns tcp
+      ansible.builtin.iptables:
+        chain: INPUT
+        protocol: tcp
+        in_interface: "!lo"
+        destination_ports:
+          - "953"
+        jump: DROP
+        comment: DROP RDNS from outside
+
+###
+# Cosmos Node iptables
+# https://forum.cosmos.network/t/what-ports-does-gaiad-use/444
+###
+
+- name: Allow public facing ports for Cosmos Node 
+  ansible.builtin.iptables:
+    chain: INPUT
+    protocol: tcp
+    destination_ports:
+      - "26656" # p2p
+    jump: ACCEPT
+    comment: ACCEPT Cosmos Node incoming
+
+- name: Restrict management ports for Cosmos Node from outside the node
+  ansible.builtin.iptables:
+    chain: INPUT
+    in_interface: "!lo"
+    protocol: tcp
+    destination_ports:
+      - "26657" # tendermint rpc
+      - "26658" # ABCI
+      - "26660" # Prometheus stat
+      - "9090"  # GRPC
+      - "9091"  # GRPC-Web
+      - "1317"  # HTTP REST: Light Client Daemon
+    jump: REJECT
+    comment: REJECT Cosmos Node management ports
+
+- name: Restrict custom exporters from outside the node
+  ansible.builtin.iptables:
+    chain: INPUT
+    in_interface: "!lo"
+    protocol: tcp
+    destination_ports:
+      - "9100" # node_exporter
+      - "9300" # cosmos_exporter
+      - "9301" # tendermint_exporter
+    jump: REJECT
+    comment: REJECT Cosmos Node exporters
+
+
+
+###
+# Change default policies
+###
+
+### WARNING! Make sure you have an extra connection if case of emergency
+
+# - name: Set the default policy for the FORWARD chain to ACCEPT
+#   ansible.builtin.iptables:
+#     chain: FORWARD
+#     policy: ACCEPT
+#   when: firewall_lockdown
+
+# - name: Set the default policy for the OUTPUT chain to ACCEPT
+#   ansible.builtin.iptables:
+#     chain: OUTPUT
+#     policy: ACCEPT
+#   when: firewall_lockdown
+
+# - name: Set the default policy for the INPUT chain to ACCEPT
+#   ansible.builtin.iptables:
+#     chain: INPUT
+#     policy: ACCEPT
+#   when: firewall_lockdown
+
+
+- name: Store iptables rules to file
+  community.general.iptables_state:
+    state: saved
+    path: /etc/iptables/rules.v4

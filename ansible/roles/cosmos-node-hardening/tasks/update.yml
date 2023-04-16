@@ -1,0 +1,17 @@
+- name: update apt cache
+  apt:
+    update_cache: true
+  when: apt_cache_updated
+
+
+- name: upgrade system
+  apt:
+    upgrade: safe
+  when: apt_system_upgraded
+
+- name: purge unused packages
+  apt:
+    autoremove: true
+    purge: true
+  when: apt_system_purged
+  

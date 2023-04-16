@@ -1,0 +1,19 @@
+collections:
+  - name: https://github.com/dev-sec/ansible-collection-hardening.git
+    type: git
+    version: 8.6.0
+  - name: https://github.com/Kirkirillka/cosmos-ansible.git
+    type: git
+    version: feat/ansible-collection
+  - name: ansible.posix
+    version: 1.4.0
+  - name: community.general
+    version: 6.2.0
+
+roles:
+  - name: geerlingguy.ntp
+  - name: geerlingguy.clamav
+  - name: juju4.auditd
+  - name: nginxinc.nginx
+  - name: nginxinc.nginx_config
+  

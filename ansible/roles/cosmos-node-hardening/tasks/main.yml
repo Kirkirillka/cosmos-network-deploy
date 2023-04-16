@@ -1,0 +1,41 @@
+- name: update system
+  import_tasks: update.yml
+  tags:
+    - apt
+    - cache_update
+    - system_update
+
+- name: install packages
+  import_tasks: packages.yml
+  tags:
+    - apt
+    - packages
+
+- name: configure firewall
+  import_tasks: iptables.yml
+  when: firewall_configured
+  tags: firewall
+
+- name: configure dns
+  import_tasks: dns.yml
+  when: dns_configured
+  tags: dns
+  
+  
+- name: configure banners
+  import_tasks: banners.yml
+  when: banners_configured
+  tags:
+     - banners
+  
+- name: configure malware scanner
+  import_tasks: clamav.yml
+  when: malware_scanner_configured
+  tags:
+     - malware
+
+- name: configure auditd
+  import_tasks: auditd.yml
+  when: auditd_configured
+  tags:
+     - audit

@@ -1,0 +1,41 @@
+nginx_config_main_template_enable: true
+nginx_config_debug_output: true
+
+nginx_config_http_template_enable: true
+nginx_config_http_template: "{{ nginx_tendermint_exporter_config_http_template + nginx_gaiad_metrics_config_http_template + [] }}"
+
+nginx_gaiad_metrics_config_http_template:
+  - backup: true
+    deployment_location: /etc/nginx/conf.d/gaiad_metrics.conf
+    config:
+      upstreams:
+        - name: gaiad_prometheus
+          zone:
+            name: stream_zone
+            size: 64k
+          least_conn: true
+          servers:
+            - address: "{{prometheus_listen_addr}}"
+              weight: 1
+              max_conns: 100
+              max_fails: 3
+              fail_timeout: 5s
+              backup: false
+              down: false
+              resolve: false
+      log:
+        error_log:
+          file: /var/log/nginx/gaiad_metrics_error.log
+          level: notice
+      servers:
+        - core:
+            listen:
+              - address: 0.0.0.0
+                port: 16660
+          locations:
+            - location: /
+              auth_basic:
+                realm: "\"Gaiad exporter area\""
+                user_file: "{{ nginx_gaiad_metrics_htpasswd_path }}"
+              proxy:
+                pass: http://gaiad_prometheus/

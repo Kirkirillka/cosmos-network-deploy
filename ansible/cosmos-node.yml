@@ -1,0 +1,9 @@
+---
+- name: Harden OS
+  ansible.builtin.import_playbook: cosmos-node-hardening.yml
+- name: Install Cosmos Node gaia
+  ansible.builtin.import_playbook: cosmos-node-install.yml
+- name: Install Tendermint-exporter
+  ansible.builtin.import_playbook: cosmos-node-tendermint-exporter.yml
+- name: Install Nginx to expose internal services
+  ansible.builtin.import_playbook: cosmos-node-nginx.yml

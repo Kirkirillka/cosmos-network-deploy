@@ -61,6 +61,25 @@
   tags:
     - configure
 
+# https://www.redhat.com/sysadmin/systemd-automate-recovery
+- name: Copy the tendermint_exporter healer systemd unit file.
+  template:
+    src: tendermint_exporter_healer.service.j2
+    dest: /etc/systemd/system/tendermint_exporter_healer.service
+    mode: u+rx
+  notify: restart tendermint_exporter
+  tags:
+    - configure
+
+- name: Copy the tendermint_exporter healer script.
+  template:
+    src: tendermint_exporter_healer.sh.j2
+    dest: /usr/local/bin/tendermint_exporter_healer.sh
+    mode: 0744
+  notify: restart tendermint_exporter
+  tags:
+    - configure
+
 - name: Reload systemd daemon if unit file is changed.
   systemd:
     daemon-reload: true

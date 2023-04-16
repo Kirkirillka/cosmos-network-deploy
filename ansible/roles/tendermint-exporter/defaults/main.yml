@@ -20,3 +20,6 @@ tendermint_exporter_options: ''
 
 tendermint_exporter_state: started
 tendermint_exporter_enabled: true
+
+
+cosmos_node_systemd_service: cosmovisor.service

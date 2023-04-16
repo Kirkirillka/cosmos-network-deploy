@@ -1,0 +1,9 @@
+- name: configure /etc/issue.net
+  template:
+    src: issue.net.j2
+    dest: /etc/issue.net
+
+- name: configure /etc/issue
+  template:
+    src: issue.j2
+    dest: /etc/issue
