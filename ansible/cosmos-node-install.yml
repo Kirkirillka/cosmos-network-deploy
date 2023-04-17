@@ -23,3 +23,11 @@
           - github3.py
         state: present
         umask: "0022"
+
+  post_tasks:
+    - name: remove unnecessary packages
+      apt:
+        name: 
+          - gcc
+          - g++
+        state: absent

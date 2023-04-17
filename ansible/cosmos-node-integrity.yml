@@ -1,10 +1,145 @@
 - hosts: cosmos
-  collections:
-    - devsec.hardening
   vars:
-    ssh_banner: true
-    ssh_print_last_log: true
-    ssh_client_alive_count: 2
-    ssh_max_sessions: 2
+    aide_cronjob_name: aide_check
+    aide_conf_path: /etc/aide/aide.conf
+    aide_default_rules:
+      - name: "FIPSR Rule"
+        rule: "FIPSR"
+    #    comment: Example Rule Comment
+        attributes: ['p', 'i', 'n', 'u', 'g', 's', 'm', 'c', 'acl', 'selinux', 'xattrs', 'sha256']
+        # attributes: ['p', 'i', 'n', 'u', 'g', 's', 'm', 'c', 'sha256']
+      - name: "ALLXTRAHASHES Rule"
+        rule: "ALLXTRAHASHES"
+        attributes: ['sha1', 'rmd160', 'sha256', 'sha512', 'tiger']
+      - name: "EVERYTHING Rule"
+        rule: "EVERYTHING"
+        attributes: ['R', 'ALLXTRAHASHES']
+      - name: "NORMAL Rule"
+        rule: "NORMAL"
+        attributes: ['FIPSR', 'sha512']
+        paths:
+          - "/boot"
+          - "/bin"
+          - "/sbin"
+          - "/lib"
+          - "/lib64"
+          - "/opt"
+          - "/usr"
+          - "/root"
+          - "/etc/exports"
+          - "/etc/fstab"
+          - "/etc/passwd"
+          - "/etc/group"
+          - "/etc/gshadow"
+          - "/etc/shadow"
+          - "/etc/security/opasswd"
+          - "/etc/hosts.allow"
+          - "/etc/hosts.deny"
+          - "/etc/sudoers"
+          - "/etc/skel"
+          - "/etc/logrotate.d"
+          - "/etc/nscd.conf"
+          - "/etc/securetty"
+          - "/etc/profile"
+          - "/etc/bashrc"
+          - "/etc/bash_completion.d/"
+          - "/etc/login.defs"
+          - "/etc/zprofile"
+          - "/etc/zshrc"
+          - "/etc/zlogin"
+          - "/etc/zlogout"
+          - "/etc/profile.d/"
+          - "/etc/X11/"
+          - "/etc/yum.conf"
+          - "/etc/yumex.conf"
+          - "/etc/yumex.profiles.conf"
+          - "/etc/yum"
+          - "/etc/yum.repos.d/"
+      - name: "DIR Rule"
+        rule: "DIR"
+        # attributes: ['p', 'i', 'n', 'u', 'g', 'acl', 'selinux', 'xattrs']
+        attributes: ['p', 'i', 'n', 'u', 'g', "acl"]
+      - rule: "PERMS"
+        # attributes: ['p', 'i', 'u', 'g', 'acl', 'selinux']
+        attributes: ['p', 'i', 'u', 'g', "acl"]
+        paths:
+          - "/etc"
+          - '/root/\..*'
+      - name: "LOG Rule"
+        rule: "LOG"
+        attributes: '>'
+        paths:
+          # - "/var/log"
+          # - "/var/run/utmp"
+      - name: "LSPP Rule"
+        rule: "LSPP"
+        attributes: ['FIPSR', 'sha512']
+        paths:
+          - "/etc/audit/"
+          - "/etc/libaudit.conf"
+          - "/usr/sbin/stunnel"
+          - "/var/spool/at"
+          - "/etc/at.allow"
+          - "/etc/at.deny"
+          - "/etc/cron.allow"
+          - "/etc/cron.deny"
+          - "/etc/cron.d/"
+          - "/etc/cron.daily/"
+          - "/etc/cron.hourly/"
+          - "/etc/cron.monthly/"
+          - "/etc/cron.weekly/"
+          - "/etc/crontab"
+          - "/var/spool/cron/root"
+          - "/etc/login.defs"
+          - "/etc/securetty"
+          - "/etc/hosts"
+          - "/etc/sysconfig"
+          - "/etc/inittab"
+          - "/etc/grub"
+          - "/etc/rc.d"
+          - "/etc/ld.so.conf"
+          - "/etc/localtime"
+          - "/etc/sysctl.conf"
+          - "/etc/modprobe.conf"
+          - "/etc/pam.d"
+          - "/etc/security"
+          - "/etc/aliases"
+          - "/etc/postfix"
+          - "/etc/ssh/sshd_config"
+          - "/etc/ssh/ssh_config"
+          - "/etc/stunnel"
+          - "/etc/vsftpd.ftpusers"
+          - "/etc/vsftpd"
+          - "/etc/issue"
+          - "/etc/issue.net"
+          - "/etc/cups"
+      - name: "DATAONLY Rule"
+        rule: "DATAONLY"
+        # attributes: ['p', 'n', 'u', 'g', 's', 'acl', 'selinux', 'xattrs', 'sha256']
+        attributes: ['p', 'n', 'u', 'g', 's', 'sha256']
+        paths:
+          - "/etc/resolv.conf"
+    #Special rule for ignoring paths. This will add '!' to the beginning of the path for you in the config.
+      - name: "Special Negative/Ignore Path rule"
+        rule: "negative"
+        paths:
+          - "/usr/src"
+          - "/usr/tmp"
+          - "/etc/mtab"
+          - "/etc/.*~"
+          - "/var/log/sa"
+          - "/var/log/aide.log"
+          - "/var/log/and-httpd"
+          - /etc/systemd/system/.*.wants/
+    aide_extra_rules:   
+      - name: "Cosmos Node Configuration"
+        rule: "GAIAD"
+        attributes: ['FIPSR', 'sha512']
+        paths:
+          - "/home/gaia/.gaia/config/config.toml"
+          - "/home/gaia/.gaia/config/client.toml"
+          - "/home/gaia/.gaia/config/node_key.json"
+          - "/home/gaia/.gaia/config/priv_validator_key.json"
   roles:
-    - role: devsec.hardening.os_hardening
+    - role: ansible-aide
+      when: integrity_locked is defined and integrity_locked

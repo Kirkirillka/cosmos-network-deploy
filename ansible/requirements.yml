@@ -16,4 +16,7 @@ roles:
   - name: juju4.auditd
   - name: nginxinc.nginx
   - name: nginxinc.nginx_config
+    src: https://github.com/nginxinc/ansible-role-nginx-config.git
+  - name: ansible-aide
+    src: https://github.com/Kirkirillka/ansible-aide.git
   

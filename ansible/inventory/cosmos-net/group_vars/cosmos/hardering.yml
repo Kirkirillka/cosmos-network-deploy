@@ -1,6 +1,0 @@
-apt_system_upgraded: true
-
-firewall_lockdown: false
-
-
-ssh_client_password_login: true

@@ -10,6 +10,12 @@
       - debsums
     state: present
 
+- name: install network tools
+  apt:
+    name:
+      - arpwatch
+    state: present
+
 - name: install system performance tool
   apt:
     name: sysstat

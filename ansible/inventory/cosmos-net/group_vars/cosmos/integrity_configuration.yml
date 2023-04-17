@@ -1,0 +1,2 @@
+# enable integrity lockdown
+integrity_locked: true

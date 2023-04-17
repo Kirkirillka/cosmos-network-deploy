@@ -7,3 +7,5 @@
   ansible.builtin.import_playbook: cosmos-node-tendermint-exporter.yml
 - name: Install Nginx to expose internal services
   ansible.builtin.import_playbook: cosmos-node-nginx.yml
+- name: Frozen system configuration
+  ansible.builtin.import_playbook: cosmos-node-integrity.yml

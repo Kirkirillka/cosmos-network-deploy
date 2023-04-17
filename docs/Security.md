@@ -23,3 +23,21 @@ Credits:
 - https://medium.com/@kidinamoto/tech-choices-for-cosmos-validators-27c7242061ea
 - https://medium.com/forbole/a-step-by-step-guide-to-join-cosmos-hub-testnet-e591a3d2cb41
 
+## Hardening
+
+- Configure remote access (basically SSH)
+  - No root access (or with private keys only)
+  - No password login
+  - No port forwardning
+
+
+## Integrity checks
+
+An integrity software (AIDE in linux) can lockdown the system configuration and warn you in case of unauthorized changes.
+
+You should track down the following files (beside the default recommended rules):
+
+- `${GAIA_HOME}/config/config.toml` - configuration for daemon `gaiad`.
+- `${GAIA_HOME}/config/client.toml` - configuration for CLI part `gaiad`.
+- `${GAIA_HOME}/config/node_key.json` - node key.
+- `${GAIA_HOME}/config/priv_validator_key.json` - validator key.

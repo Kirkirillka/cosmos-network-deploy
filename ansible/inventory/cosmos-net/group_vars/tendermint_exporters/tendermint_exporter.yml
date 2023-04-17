@@ -1,2 +1,2 @@
 tendermint_exporter_host: localhost
-tendermint_exporter_user: tendermint_exporter_test
+tendermint_exporter_user: tendermint_exporter

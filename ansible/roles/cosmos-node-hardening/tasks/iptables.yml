@@ -16,7 +16,6 @@
     chain: INPUT
     in_interface: lo
     jump: ACCEPT
-    comment: ACCEPT local traffic
 
 - name: Reject locally destinated traffic not from localhost
   ansible.builtin.iptables:
@@ -24,7 +23,6 @@
     source: 127.0.0.0/8
     in_interface: "!lo"
     jump: REJECT
-    comment: REJECT locally from external
 
 ###
 ## established connections
@@ -36,7 +34,6 @@
     match: state
     ctstate: ESTABLISHED,RELATED
     jump: ACCEPT
-    comment: ACCEPT established/related
 
 ###
 # Allow specific system protocols
@@ -50,7 +47,6 @@
     icmp_type: 8
     match: state
     jump: ACCEPT
-    comment: ACCEPT ICMP PING
 
 - name: Allow incoming SSH connections 
   ansible.builtin.iptables:
@@ -59,7 +55,6 @@
     destination_ports:
       - "22"
     jump: ACCEPT
-    comment: ACCEPT SSH
 
 - name: Disable NFS connections 
   ansible.builtin.iptables:
@@ -69,7 +64,6 @@
     destination_ports:
       - "111"
     jump: DROP
-    comment: DROP NFS
 
 - name: Reject incoming DNS requests not outside 
   block:
@@ -81,7 +75,6 @@
         destination_ports:
           - "53"
         jump: DROP
-        comment: DROP 53 DNS UDP from outside
     - name: block default 53 tcp
       ansible.builtin.iptables:
         chain: INPUT
@@ -90,7 +83,6 @@
         destination_ports:
           - "53"
         jump: DROP
-        comment: DROP DNS TCP from outside
     - name: block default 953 rdns tcp
       ansible.builtin.iptables:
         chain: INPUT
@@ -99,7 +91,6 @@
         destination_ports:
           - "953"
         jump: DROP
-        comment: DROP RDNS from outside
 
 ###
 # Cosmos Node iptables
@@ -113,7 +104,6 @@
     destination_ports:
       - "26656" # p2p
     jump: ACCEPT
-    comment: ACCEPT Cosmos Node incoming
 
 - name: Restrict management ports for Cosmos Node from outside the node
   ansible.builtin.iptables:
@@ -128,7 +118,6 @@
       - "9091"  # GRPC-Web
       - "1317"  # HTTP REST: Light Client Daemon
     jump: REJECT
-    comment: REJECT Cosmos Node management ports
 
 - name: Restrict custom exporters from outside the node
   ansible.builtin.iptables:
@@ -140,7 +129,6 @@
       - "9300" # cosmos_exporter
       - "9301" # tendermint_exporter
     jump: REJECT
-    comment: REJECT Cosmos Node exporters
 
 
 
