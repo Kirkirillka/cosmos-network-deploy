@@ -65,10 +65,10 @@
         paths:
           - "/etc"
           - '/root/\..*'
-      - name: "LOG Rule"
-        rule: "LOG"
-        attributes: '>'
-        paths:
+      # - name: "LOG Rule"
+      #   rule: "LOG"
+      #   attributes: '>'
+      #   paths:
           # - "/var/log"
           # - "/var/run/utmp"
       - name: "LSPP Rule"
@@ -131,7 +131,7 @@
           - "/var/log/aide.log"
           - "/var/log/and-httpd"
           - /etc/systemd/system/.*.wants/
-    aide_extra_rules:   
+    aide_extra_rules:
       - name: "Cosmos Node Configuration"
         rule: "GAIAD"
         attributes: ['FIPSR', 'sha512']
@@ -140,6 +140,8 @@
           - "/home/gaia/.gaia/config/client.toml"
           - "/home/gaia/.gaia/config/node_key.json"
           - "/home/gaia/.gaia/config/priv_validator_key.json"
+
+    aide_default: "{{aide_default_rules + aide_extra_rules }}"
   roles:
     - role: ansible-aide
       when: integrity_locked is defined and integrity_locked
