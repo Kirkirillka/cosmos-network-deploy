@@ -1,2 +1,4 @@
 # frozen the system after ansible invocation
-aide_update_db: true
+# set true to update db
+# set false to leave the last added database
+aide_update_db: false
